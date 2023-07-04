@@ -1,10 +1,8 @@
-name: Rust
+name: Build Release
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  release:
+    types: [created]
 
 env:
   CARGO_TERM_COLOR: always
@@ -28,6 +26,8 @@ jobs:
     - name: Build
       id: compile
       uses: rust-build/rust-build.action@v1.4.3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         RUSTTARGET: ${{ matrix.target }}
         ARCHIVE_TYPES: ${{ matrix.archive }}
