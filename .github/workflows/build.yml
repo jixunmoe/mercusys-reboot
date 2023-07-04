@@ -1,0 +1,42 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-pc-windows-gnu
+            archive: zip
+          - target: x86_64-unknown-linux-musl # alpine
+            archive: tar.gz
+          - target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+          - target: aarch64-unknown-linux-gnu	
+            archive: tar.gz
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      id: compile
+      uses: rust-build/rust-build.action@v1.4.3
+      with:
+        RUSTTARGET: ${{ matrix.target }}
+        ARCHIVE_TYPES: ${{ matrix.archive }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Binary
+        path: |
+          ${{ steps.compile.outputs.BUILT_ARCHIVE }}
+          ${{ steps.compile.outputs.BUILT_CHECKSUM }}
